@@ -1,0 +1,44 @@
+name: Manual Package Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_ref:
+        description: "The git tag ref to build and publish (e.g., v1.0.1)"
+        required: true
+        type: string
+
+jobs:
+  manual_publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout Specific Tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag_ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Package
+        run: pnpm build
+
+      - name: Publish to GitHub Packages
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

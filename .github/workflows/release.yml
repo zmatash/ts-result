@@ -1,0 +1,31 @@
+name: Node.js Package
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish-gpr:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build Package
+        run: pnpm build
+      - name: Publish to GPR
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
