@@ -1,5 +1,5 @@
 {
-  "name": "@tally-cat/result",
+  "name": "@zmatash/result",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
